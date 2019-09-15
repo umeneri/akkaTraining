@@ -11,7 +11,7 @@ class SendingActorTest extends TestKit(ActorSystem("testsystem"))
   with MustMatchers
   with StopSystemAfterAll {
 
-  "A silent actor" must {
+  "A sending actor" must {
     "send a message to another actor when it has finished processing" in {
       import SendingActor._
 
