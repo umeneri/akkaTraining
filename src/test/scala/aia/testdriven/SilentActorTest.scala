@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.testkit.{TestActorRef, TestKit}
 import org.scalatest.{MustMatchers, WordSpecLike}
 
-class SendingActorTest extends TestKit(ActorSystem("testsystem"))
+class SilentActorTest extends TestKit(ActorSystem("testsystem"))
   with WordSpecLike
   with MustMatchers
   with StopSystemAfterAll {
