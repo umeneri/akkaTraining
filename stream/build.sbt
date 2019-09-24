@@ -19,7 +19,9 @@ libraryDependencies ++= {
     //<start id="test-dependencies">
     "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % "test",
     "com.typesafe.akka" %% "akka-testkit"        % akkaVersion % "test",
-    "org.scalatest"     %% "scalatest"           % "3.0.0" % "test"
+    "com.typesafe.akka" %% "akka-http-testkit"    % akkaHttpVersion % Test,
+    "org.scalatest"     %% "scalatest"           % "3.0.0" % "test",
+    "org.mockito"       %% "mockito-scala"        % "1.5.7"         % Test
     //<end id="test-dependencies">
   )
 }
