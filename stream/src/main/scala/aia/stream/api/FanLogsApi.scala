@@ -1,16 +1,18 @@
 package aia.stream.api
 
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import java.nio.file.StandardOpenOption.{ APPEND, CREATE, WRITE }
 
 import aia.stream.models.{ Critical, Error, Event, LogReceipt, Ok, ParseError, State, Warning }
-import aia.stream.processer.{ EventMarshalling, EventUnmarshaller, LogJson }
+import aia.stream.processer.LogEntityMarshaller.LEM
+import aia.stream.processer.{ EventMarshalling, EventUnmarshaller, LogEntityMarshaller, LogJson }
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.Unmarshaller
-import akka.stream.scaladsl.{ Broadcast, FileIO, Flow, GraphDSL, Keep, Sink, Source }
+import akka.stream.scaladsl.{ Broadcast, FileIO, Flow, GraphDSL, Keep, Merge, Sink, Source }
 import akka.stream._
 import akka.util.ByteString
 import akka.{ Done, NotUsed }
@@ -27,7 +29,6 @@ class FanLogsApi(
   implicit val executionContext: ExecutionContext, 
   val materializer: ActorMaterializer
 ) extends EventMarshalling {
-  
   type FlowLike = Graph[FlowShape[Event, ByteString], NotUsed]
 
   def logStateFile(id: String, state: State): Path =
@@ -69,11 +70,32 @@ class FanLogsApi(
       }
     )
   }
+  
+  def mergeNotOk(logId: String): Source[ByteString, NotUsed] = {
+    val warning = logFileSource(logId, Warning).via(LogJson.jsonFramed(maxJsObject))
+    val error = logFileSource(logId, Error).via(LogJson.jsonFramed(maxJsObject))
+    val critical = logFileSource(logId, Critical).via(LogJson.jsonFramed(maxJsObject))
+    
+    Source.fromGraph(
+      GraphDSL.create() { implicit builder =>
+        import GraphDSL.Implicits._
+        
+        val warningShape = builder.add(warning)
+        val errorShape = builder.add(error)
+        val criticalShape = builder.add(critical)
+        val merge = builder.add(Merge[ByteString](3))
+
+        warningShape ~> merge
+        criticalShape ~> merge
+        errorShape ~> merge
+        SourceShape(merge.out)
+      }
+    )
+  }
 
   implicit val unmarshaller: Unmarshaller[HttpEntity, Source[Event, _]] = EventUnmarshaller.create(maxLine, maxJsObject)
 
-//  def routes: Route = postRoute ~ getRoute ~ deleteRoute()
-  def routes: Route = postRoute
+  def routes: Route = postRoute ~ getLogNotOkRoute ~ getRoute ~ deleteRoute()
 
   def postRoute: Route =
     pathPrefix("logs" / Segment) { logId =>
@@ -103,31 +125,45 @@ class FanLogsApi(
       }
     }
 
+  // NOTE: なぜLEMでうまくいくのか？
+  implicit val marshaller: LEM = LogEntityMarshaller.create(maxJsObject)
 
-//  def getRoute: Route =
-//    pathPrefix("logs" / Segment) { logId =>
-//      pathEndOrSingleSlash {
-//        get {
-//          if(Files.exists(logFile(logId))) {
-//            val src = logFileSource(logId)
-//            complete(
-//              HttpEntity(ContentTypes.`application/json`, src)
-//            )
-//          } else {
-//            complete(StatusCodes.NotFound)
-//          }
-//        }
-//      }
-//    }
-//
-//
-//  def deleteRoute(): Route =
-//    pathPrefix("logs" / Segment) { logId =>
-//      pathEndOrSingleSlash {
-//        delete {
-//          if(Files.deleteIfExists(logFile(logId))) complete(StatusCodes.OK)
-//          else complete(StatusCodes.InternalServerError)
-//        }
-//      }
-//    }
+  val getLogNotOkRoute: Route = {
+    pathPrefix("logs" / Segment / "not-ok") { logId => 
+      pathEndOrSingleSlash {
+        get {
+          extractRequest { req => 
+            complete(Marshal(mergeNotOk(logId)).toResponseFor(req))
+          }
+        }
+      }
+    }
+  }
+
+  def getRoute: Route =
+    pathPrefix("logs" / Segment) { logId =>
+      pathEndOrSingleSlash {
+        get {
+          if(Files.exists(logFile(logId))) {
+            val src = logFileSource(logId)
+            complete(
+              HttpEntity(ContentTypes.`application/json`, src)
+            )
+          } else {
+            complete(StatusCodes.NotFound)
+          }
+        }
+      }
+    }
+
+
+  def deleteRoute(): Route =
+    pathPrefix("logs" / Segment) { logId =>
+      pathEndOrSingleSlash {
+        delete {
+          if(Files.deleteIfExists(logFile(logId))) complete(StatusCodes.OK)
+          else complete(StatusCodes.InternalServerError)
+        }
+      }
+    }
 }
