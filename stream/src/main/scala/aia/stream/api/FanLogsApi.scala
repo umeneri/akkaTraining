@@ -93,9 +93,9 @@ class FanLogsApi(
     )
   }
 
-  implicit val unmarshaller: Unmarshaller[HttpEntity, Source[Event, _]] = EventUnmarshaller.create(maxLine, maxJsObject)
-
   def routes: Route = postRoute ~ getLogNotOkRoute ~ getRoute ~ deleteRoute()
+
+  implicit val unmarshaller: Unmarshaller[HttpEntity, Source[Event, _]] = EventUnmarshaller.create(maxLine, maxJsObject)
 
   def postRoute: Route =
     pathPrefix("logs" / Segment) { logId =>
