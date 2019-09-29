@@ -13,13 +13,6 @@ trait EventMarshalling extends DefaultJsonProtocol {
     def write(dateTime: ZonedDateTime) = JsString(dateTime.format(DateTimeFormatter.ISO_INSTANT))
     def read(value: JsValue): ZonedDateTime = value match {
       case JsString(str) =>
-//        try {
-//          ZonedDateTime.parse(str)
-//        } catch {
-//          case e: DateTimeParseException =>
-//            val msg = s"Could not deserialize $str to ZonedDateTime"
-//            deserializationError(msg)
-//        }
         Try {
           ZonedDateTime.parse(str)
         }.recover {

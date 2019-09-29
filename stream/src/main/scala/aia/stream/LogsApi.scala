@@ -46,9 +46,7 @@ class LogsApi(
 
 
 
-//  def routes: Route = postRoute ~ getRoute ~ deleteRoute
-  def routes = getRoute
-
+  def routes = postRoute ~ getRoute ~ deleteRoute
 
   def postRoute =
     pathPrefix("logs" / Segment) { logId =>
@@ -98,7 +96,7 @@ class LogsApi(
     }
 
 
-  def deleteRoute() =
+  def deleteRoute =
     pathPrefix("logs" / Segment) { logId =>
       pathEndOrSingleSlash {
         delete {
