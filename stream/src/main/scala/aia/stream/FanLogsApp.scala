@@ -2,7 +2,7 @@ package aia.stream
 
 import java.nio.file.{ FileSystems, Files }
 
-import aia.stream.api.LogsApi
+import aia.stream.api.FanLogsApi
 import aia.stream.processer.LogStreamProcessor
 import akka.actor.ActorSystem
 import akka.event.Logging
@@ -24,6 +24,7 @@ object FanLogsApp extends App {
     Files.createDirectories(FileSystems.getDefault.getPath(dir))
   }
   val maxLine = config.getInt("log-stream-processor.max-line")
+  val maxJsObject = 10000
 
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContextExecutor = system.dispatcher
@@ -37,8 +38,8 @@ object FanLogsApp extends App {
    ActorMaterializerSettings(system)
      .withSupervisionStrategy(decider)
   )
-  
-  val api = new LogsApi(logsDir, maxLine).routes
+
+  val api = new FanLogsApi(logsDir, maxLine, maxJsObject).routes
  
   val bindingFuture: Future[ServerBinding] =
     Http().bindAndHandle(api, host, port)

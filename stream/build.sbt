@@ -7,7 +7,7 @@ libraryDependencies ++= {
   val akkaVersion = "2.5.4"
   val akkaHttpVersion = "10.0.10"
   Seq(
-    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+  "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     //<start id="stream-dependencies">
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
     //<end id="stream-dependencies">
@@ -36,3 +36,4 @@ scalacOptions ++= Seq(
   "-language:_"
 )
 
+mainClass in reStart := Some("aia.stream.FanLogsApp")

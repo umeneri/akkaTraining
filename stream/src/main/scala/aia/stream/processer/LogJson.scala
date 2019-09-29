@@ -10,7 +10,9 @@ object LogJson extends EventMarshalling
     with NotificationMarshalling
     with MetricMarshalling {
   def textInFlow(maxLine: Int): Flow[ByteString, Event, NotUsed] = {
-    Framing.delimiter(ByteString("\n"), maxLine)
+
+    // Note: error: Stream finished but there was a truncated final frame in the buffer
+    Framing.delimiter(ByteString("\n"), maxLine, allowTruncation = true)
     .map(_.decodeString("UTF8"))
     .map(LogStreamProcessor.parseLineEx)
     .collect { case Some(e) => e }
@@ -21,8 +23,8 @@ object LogJson extends EventMarshalling
       .map(_.decodeString("UTF8").parseJson.convertTo[Event])
   }
 
-  def jsonFramed(maxJsonObject: Int): Flow[ByteString, ByteString, NotUsed] =
-    JsonFraming.objectScanner(maxJsonObject)
+//  def jsonFramed(maxJsonObject: Int): Flow[ByteString, ByteString, NotUsed] =
+//    JsonFraming.objectScanner(maxJsonObject)
 
   val jsonOutFlow: Flow[Event, ByteString, NotUsed] = Flow[Event].map { event =>
     ByteString(event.toJson.compactPrint)

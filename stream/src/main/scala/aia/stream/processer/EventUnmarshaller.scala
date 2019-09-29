@@ -19,7 +19,6 @@ object EventUnmarshaller extends EventMarshalling {
     new Unmarshaller[HttpEntity, Source[Event, _]] {
       def apply(entity: HttpEntity)
                (implicit ec: ExecutionContext, materializer: Materializer): Future[Source[Event, _]] = {
-        println(entity.contentType)
         val future = entity.contentType match {
           case ContentTypes.`text/plain(UTF-8)` =>
             Future.successful(LogJson.textInFlow(maxLine))

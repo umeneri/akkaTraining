@@ -28,10 +28,11 @@ class LogsApi(
 ) extends EventMarshalling {
   def logFile(id: String): Path = logsDir.resolve(id)
 
-  val inFlow: Flow[ByteString, Event, NotUsed] = Framing.delimiter(ByteString("\n"), maxLine)
+  val inFlow: Flow[ByteString, Event, NotUsed] = Framing.delimiter(ByteString("\n"), maxLine, allowTruncation = true)
     .map(_.decodeString("UTF8"))
     .map(LogStreamProcessor.parseLineEx)
     .collect { case Some(e) => e }
+
   val outFlow: Flow[Event, ByteString, NotUsed] = Flow[Event].map { event =>
     ByteString(event.toJson.compactPrint)
   }

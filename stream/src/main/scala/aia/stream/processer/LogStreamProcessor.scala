@@ -93,9 +93,12 @@ object LogStreamProcessor extends EventMarshalling {
    * parses text log line into an Event
    */
   def parseLineEx(line: String): Option[Event] = {
+
+    println(line)
+
     if(!line.isEmpty) {
-      line.split("\\|") match {
-        case Array(host, service, state, time, desc, tag, metric) =>
+      line.split("\\|").toSeq match {
+        case Seq(host, service, state, time, desc, tag, metric) =>
           val t = tag.trim
           val m = metric.trim
           Some(Event(
@@ -110,7 +113,7 @@ object LogStreamProcessor extends EventMarshalling {
             if(t.nonEmpty) Some(t) else None,
             if(m.nonEmpty) Some(m.toDouble) else None
           ))
-        case Array(host, service, state, time, desc) =>
+        case Seq(host, service, state, time, desc) =>
           Some(Event(
             host.trim,
             service.trim,
@@ -121,7 +124,8 @@ object LogStreamProcessor extends EventMarshalling {
             ZonedDateTime.parse(time.trim),
             desc.trim
           ))
-        case _ =>
+        case e =>
+          println(e)
           throw LogParseException(s"Failed on line: $line")
       }
     } else None
