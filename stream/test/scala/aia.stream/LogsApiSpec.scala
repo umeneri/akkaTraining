@@ -35,6 +35,37 @@ class LogsApiSpec extends WordSpec
         entityAs[String] should ===("""{"logId":"1","written":637}""")
       }
     }
+
+    "post entity as json" in {
+      val logsApi = new LogsApi(Paths.get("test/tmp"), 100)
+      lazy val routes: Route = logsApi.postRoute
+      val entityString =
+        """[
+          |  {
+          |    "host": "my-host-1",
+          |    "service": "web-app",
+          |    "state": "ok",
+          |    "time": "2015-08-12T12:12:00.127Z",
+          |    "description": "5 tickets sold to RHCP."
+          |  },
+          |  {
+          |    "host": "my-host-2",
+          |    "service": "web-app",
+          |    "state": "ok",
+          |    "time": "2015-08-12T12:12:01.127Z",
+          |    "description": "3 tickets sold to RHCP."
+          |  }
+          |]
+          """.stripMargin
+      val entity = HttpEntity(entityString).withContentType(ContentTypes.`application/json`)
+      val request = Post("/logs/2").withEntity(entity)
+
+      request ~> routes ~> check {
+        status should ===(StatusCodes.OK)
+        entityAs[String] should ===("""{"logId":"2","written":254}""")
+      }
+    }
+
     "get entity" in {
       val logsApi = new LogsApi(Paths.get("test/resources"), 100)
       lazy val routes: Route = logsApi.getRoute
