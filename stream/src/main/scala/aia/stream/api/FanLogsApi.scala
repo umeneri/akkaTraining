@@ -93,7 +93,21 @@ class FanLogsApi(
     )
   }
 
-  def routes: Route = postRoute ~ getLogNotOkRoute ~ getRoute ~ deleteRoute()
+  def mergeSource[E](source: Vector[Source[E, _]]): Option[Source[E, _]] = {
+    if(source.isEmpty) None
+    else if (source.size == 1) Some(source(0))
+    else {
+      val combined = Source.combine(
+        source(0),
+        source(1),
+        source.drop(2) : _*
+      )(Merge(_))
+
+      Some(combined)
+    }
+  }
+
+  def routes: Route = postRoute ~ getLogNotOkRoute ~ getRoute ~ deleteRoute() ~ getLogsRoute
 
   implicit val unmarshaller: Unmarshaller[HttpEntity, Source[Event, _]] = EventUnmarshaller.create(maxLine, maxJsObject)
 
@@ -128,7 +142,7 @@ class FanLogsApi(
   // NOTE: なぜLEMでうまくいくのか？
   implicit val marshaller: LEM = LogEntityMarshaller.create(maxJsObject)
 
-  val getLogNotOkRoute: Route = {
+  def getLogNotOkRoute: Route = {
     pathPrefix("logs" / Segment / "not-ok") { logId => 
       pathEndOrSingleSlash {
         get {
@@ -139,6 +153,37 @@ class FanLogsApi(
       }
     }
   }
+
+  def getFileSources[T](dir: Path): Vector[Source[ByteString, Future[IOResult]]] = {
+    val dirStream = Files.newDirectoryStream(dir)
+    try {
+      import scala.collection.JavaConverters._
+      val paths = dirStream.iterator.asScala.toVector
+      paths.map(path => FileIO.fromPath(path))
+    } finally dirStream.close()
+  }
+
+  def getLogsRoute: Route = {
+    pathPrefix("logs") {
+      pathEndOrSingleSlash {
+        get {
+          extractRequest { req =>
+            val sources = getFileSources(logsDir).map { src =>
+              src.via(LogJson.jsonFramed(maxJsObject))
+            }
+
+            mergeSource(sources) match {
+              case Some(src) =>
+                complete(Marshal(src).toResponseFor(req))
+              case None =>
+                complete(StatusCodes.NotFound)
+            }
+          }
+        }
+      }
+    }
+  }
+
 
   def getRoute: Route =
     pathPrefix("logs" / Segment) { logId =>
