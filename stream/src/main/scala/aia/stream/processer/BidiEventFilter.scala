@@ -1,11 +1,12 @@
-package aia.stream
+package aia.stream.processer
 
-import java.nio.file.StandardOpenOption._
+import java.nio.file.StandardOpenOption.{ APPEND, CREATE, WRITE }
 
 import aia.stream.models.{ Event, State }
+import aia.stream.util.FileArg
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.{ JsonFraming, _ }
+import akka.stream.scaladsl.{ BidiFlow, FileIO, Flow, Framing, JsonFraming, Keep, RunnableGraph, Sink, Source }
 import akka.stream.{ ActorMaterializer, IOResult }
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory

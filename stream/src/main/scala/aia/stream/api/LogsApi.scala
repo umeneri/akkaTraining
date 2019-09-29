@@ -1,8 +1,9 @@
-package aia.stream
+package aia.stream.api
 
 import java.nio.file.{ Files, Path }
 
 import aia.stream.models.{ Event, LogReceipt, ParseError }
+import aia.stream.processer.{ EventMarshalling, EventUnmarshaller, LogStreamProcessor }
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._

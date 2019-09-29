@@ -1,11 +1,9 @@
-package aia.stream
+package aia.stream.processer
 
 import aia.stream.models.Event
 import akka.http.scaladsl.model.{ ContentTypeRange, ContentTypes, HttpEntity }
 import akka.http.scaladsl.unmarshalling.Unmarshaller
-import akka.http.scaladsl.unmarshalling.Unmarshaller.UnsupportedContentTypeException
-import akka.http.scaladsl.unmarshalling.Unmarshaller._
-
+import akka.http.scaladsl.unmarshalling.Unmarshaller.{ UnsupportedContentTypeException, _ }
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 

@@ -1,4 +1,4 @@
-package aia.stream
+package aia.stream.processer
 
 import aia.stream.models.Event
 import akka.NotUsed
@@ -6,8 +6,8 @@ import akka.stream.scaladsl.{ BidiFlow, Flow, Framing, JsonFraming }
 import akka.util.ByteString
 import spray.json._
 
-object LogJson extends EventMarshalling 
-    with NotificationMarshalling 
+object LogJson extends EventMarshalling
+    with NotificationMarshalling
     with MetricMarshalling {
   def textInFlow(maxLine: Int): Flow[ByteString, Event, NotUsed] = {
     Framing.delimiter(ByteString("\n"), maxLine)
@@ -17,12 +17,12 @@ object LogJson extends EventMarshalling
   }
 
   def jsonInFlow(maxJsonObject: Int): Flow[ByteString, Event, NotUsed] = {
-    JsonFraming.objectScanner(maxJsonObject) 
+    JsonFraming.objectScanner(maxJsonObject)
       .map(_.decodeString("UTF8").parseJson.convertTo[Event])
   }
 
   def jsonFramed(maxJsonObject: Int): Flow[ByteString, ByteString, NotUsed] =
-    JsonFraming.objectScanner(maxJsonObject) 
+    JsonFraming.objectScanner(maxJsonObject)
 
   val jsonOutFlow: Flow[Event, ByteString, NotUsed] = Flow[Event].map { event =>
     ByteString(event.toJson.compactPrint)

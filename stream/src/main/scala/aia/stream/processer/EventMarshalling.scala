@@ -1,10 +1,10 @@
-package aia.stream
+package aia.stream.processer
 
 import java.time.ZonedDateTime
 import java.time.format.{ DateTimeFormatter, DateTimeParseException }
 
 import aia.stream.models.{ Critical, Error, Event, LogReceipt, Ok, ParseError, State, Warning }
-import spray.json._
+import spray.json.{ DefaultJsonProtocol, JsString, JsValue, JsonFormat, deserializationError }
 
 import scala.util.Try
 
@@ -16,7 +16,7 @@ trait EventMarshalling extends DefaultJsonProtocol {
         Try {
           ZonedDateTime.parse(str)
         }.recover {
-          case e: DateTimeParseException =>
+          case _: DateTimeParseException =>
             val msg = s"Could not deserialize $str to ZonedDateTime"
             deserializationError(msg)
         }.get

@@ -2,16 +2,17 @@ package aia.stream
 
 import java.nio.file.StandardOpenOption._
 
+import aia.stream.util.FileArg
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.{ FileIO, Flow, Framing, RunnableGraph, Sink, Source }
+import akka.stream.scaladsl.{ FileIO, Flow, Framing, Source }
 import akka.stream.{ ActorMaterializer, IOResult }
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.{ ExecutionContextExecutor, Future }
 
-object StreamingCopy extends App {
+object StreamingCopyApp extends App {
   val config = ConfigFactory.load()
   val maxLine = config.getInt("log-stream-processor.max-line")
 

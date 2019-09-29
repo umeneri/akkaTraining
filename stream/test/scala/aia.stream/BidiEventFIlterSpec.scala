@@ -3,6 +3,7 @@ package aia.stream
 import java.io.File
 import java.nio.file._
 
+import aia.stream.processer.BidiEventFilter
 import akka.actor._
 import akka.stream._
 import akka.testkit._
@@ -21,7 +22,7 @@ class BidiEventFIlterSpec extends TestKit(ActorSystem("test-filter"))
   }
 
 
-    val lines =
+    val lines: String =
     "my-host-1  | web-app | ok       | 2015-08-12T12:12:00.127Z | 5 tickets sold to RHCP.||\n" +
       "my-host-2  | web-app | ok       | 2015-08-12T12:12:01.127Z | 3 tickets sold to RHCP.| | \n" +
       "my-host-3  | web-app | ok       | 2015-08-12T12:12:02.127Z | 1 tickets sold to RHCP.| | \n" +
@@ -46,7 +47,7 @@ class BidiEventFIlterSpec extends TestKit(ActorSystem("test-filter"))
     }
 
     "be able to read it's own output" in {
-      implicit val materializer = ActorMaterializer()
+      implicit val materializer: ActorMaterializer = ActorMaterializer()
       val path = Files.createTempFile("logs", ".json")
       val json =
         """
@@ -85,7 +86,7 @@ class BidiEventFIlterSpec extends TestKit(ActorSystem("test-filter"))
       val bytes = json.getBytes("UTF8")
       Files.write(path, bytes, StandardOpenOption.APPEND)
 
-      import LogStreamProcessor._
+      import aia.stream.processer.LogStreamProcessor._
       val source = jsonText(path)
 
       //      val results = errors(parseJsonEvents(source)).runWith(Sink.seq[Event])

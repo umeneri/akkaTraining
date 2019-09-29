@@ -1,9 +1,9 @@
-package aia.stream
+package aia.stream.processer
 
 import java.nio.file.Path
 import java.time.ZonedDateTime
 
-import aia.stream.models.{ Event, State, Error }
+import aia.stream.models.{ Error, Event, State }
 import akka.stream.IOResult
 import akka.stream.scaladsl.{ FileIO, Flow, Framing, Source }
 import akka.util.ByteString
