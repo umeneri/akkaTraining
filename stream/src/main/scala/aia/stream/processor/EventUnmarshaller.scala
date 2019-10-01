@@ -1,4 +1,4 @@
-package aia.stream.processer
+package aia.stream.processor
 
 import aia.stream.models.Event
 import akka.http.scaladsl.model.{ ContentTypeRange, ContentTypes, HttpEntity }

@@ -3,7 +3,7 @@ package aia.stream
 import java.io.File
 import java.nio.file._
 
-import aia.stream.processer.BidiEventFilter
+import aia.stream.processor.BidiEventFilter
 import akka.actor._
 import akka.stream._
 import akka.testkit._
@@ -86,7 +86,7 @@ class BidiEventFIlterSpec extends TestKit(ActorSystem("test-filter"))
       val bytes = json.getBytes("UTF8")
       Files.write(path, bytes, StandardOpenOption.APPEND)
 
-      import aia.stream.processer.LogStreamProcessor._
+      import aia.stream.processor.LogStreamProcessor._
       val source = jsonText(path)
 
       //      val results = errors(parseJsonEvents(source)).runWith(Sink.seq[Event])

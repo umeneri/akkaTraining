@@ -1,9 +1,8 @@
-package aia.stream
+package aia.stream.api
 
 import java.io.File
-import java.nio.file.{ Files, Path, Paths }
+import java.nio.file.{ Files, Paths }
 
-import aia.stream.api.{ FanLogsApi, LogsApi }
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest

@@ -1,4 +1,4 @@
-package aia.stream.processer
+package aia.stream.processor
 
 import java.time.ZonedDateTime
 import java.time.format.{ DateTimeFormatter, DateTimeParseException }

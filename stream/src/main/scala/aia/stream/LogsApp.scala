@@ -3,7 +3,7 @@ package aia.stream
 import java.nio.file.{ FileSystems, Files }
 
 import aia.stream.api.LogsApi
-import aia.stream.processer.LogStreamProcessor
+import aia.stream.processor.LogStreamProcessor
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http

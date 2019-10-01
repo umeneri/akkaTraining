@@ -1,4 +1,4 @@
-package aia.stream.processer
+package aia.stream.processor
 
 import java.nio.file.Path
 import java.time.ZonedDateTime

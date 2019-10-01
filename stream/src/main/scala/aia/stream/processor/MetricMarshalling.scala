@@ -1,4 +1,4 @@
-package aia.stream.processer
+package aia.stream.processor
 
 import aia.stream.models.Metric
 import spray.json.{ DefaultJsonProtocol, RootJsonFormat }

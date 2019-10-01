@@ -1,4 +1,4 @@
-package aia.stream.processer
+package aia.stream.processor
 
 import java.nio.file.StandardOpenOption.{ APPEND, CREATE, WRITE }
 

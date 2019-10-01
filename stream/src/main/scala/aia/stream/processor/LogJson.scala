@@ -1,6 +1,6 @@
-package aia.stream.processer
+package aia.stream.processor
 
-import aia.stream.models.Event
+import aia.stream.models.{ Event, Metric, Notification }
 import akka.NotUsed
 import akka.stream.scaladsl.{ BidiFlow, Flow, Framing, JsonFraming }
 import akka.util.ByteString
@@ -30,13 +30,13 @@ object LogJson extends EventMarshalling
     ByteString(event.toJson.compactPrint)
   }
 
-//  val notifyOutFlow = Flow[Summary].map { ws =>
-//    ByteString(ws.toJson.compactPrint)
-//  }
-//
-//  val metricOutFlow = Flow[Metric].map { m =>
-//    ByteString(m.toJson.compactPrint)
-//  }
+  val notifyOutFlow: Flow[Notification, ByteString, NotUsed] = Flow[Notification].map { ws =>
+    ByteString(ws.toJson.compactPrint)
+  }
+
+  val metricOutFlow: Flow[Metric, ByteString, NotUsed] = Flow[Metric].map { m =>
+    ByteString(m.toJson.compactPrint)
+  }
 
   val textOutFlow: Flow[Event, ByteString, NotUsed] = Flow[Event].map{ event =>
     ByteString(LogStreamProcessor.logLine(event))

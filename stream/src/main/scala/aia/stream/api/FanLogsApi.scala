@@ -4,8 +4,8 @@ import java.nio.file.{ Files, Path }
 import java.nio.file.StandardOpenOption.{ APPEND, CREATE, WRITE }
 
 import aia.stream.models.{ Critical, Error, Event, LogReceipt, Ok, ParseError, State, Warning }
-import aia.stream.processer.LogEntityMarshaller.LEM
-import aia.stream.processer.{ EventMarshalling, EventUnmarshaller, LogEntityMarshaller, LogJson }
+import aia.stream.processor.LogEntityMarshaller.LEM
+import aia.stream.processor.{ EventMarshalling, EventUnmarshaller, LogEntityMarshaller, LogJson }
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
