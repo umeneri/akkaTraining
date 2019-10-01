@@ -147,3 +147,5 @@ GTAGS
 tags
 
 *.iml
+/metrics
+/notifications
