@@ -149,3 +149,4 @@ tags
 *.iml
 /metrics
 /notifications
+/logs-out
