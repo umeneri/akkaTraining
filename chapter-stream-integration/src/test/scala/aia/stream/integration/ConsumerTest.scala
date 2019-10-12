@@ -1,18 +1,15 @@
 package aia.stream.integration
 
-import java.io.{ BufferedReader, File, InputStreamReader, PrintWriter }
-import java.net.Socket
+import java.io.File
 
-import akka.actor.ActorSystem
-import akka.testkit.TestKit
 import akka.NotUsed
+import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.alpakka.amqp.{ AmqpConnectionUri, AmqpSinkSettings, NamedQueueSourceSettings }
-import akka.stream.scaladsl.{ Flow, Framing, Keep, RunnableGraph, Sink, Source, Tcp }
-import akka.stream.testkit.scaladsl.TestSink
-import akka.util.ByteString
-import io.arivera.oss.embedded.rabbitmq.{ EmbeddedRabbitMq, EmbeddedRabbitMqConfig, PredefinedVersion }
+import akka.stream.scaladsl.{ Keep, RunnableGraph, Sink, Source }
+import akka.testkit.TestKit
 import com.rabbitmq.client.{ AMQP, ConnectionFactory }
+import io.arivera.oss.embedded.rabbitmq.{ EmbeddedRabbitMq, EmbeddedRabbitMqConfig, PredefinedVersion }
 import org.apache.commons.io.FileUtils
 import org.scalatest.{ BeforeAndAfterAll, MustMatchers, WordSpecLike }
 
@@ -86,8 +83,6 @@ class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
 
       FileUtils.write(msgFile, xml.toString())
 
-      println(msgFile.exists())
-
       Await.result(consumedOrder, 10.seconds) must be(msg)
     }
     "pickup xml AMQP" in {
@@ -98,7 +93,7 @@ class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
           queueName
         )
 
-      val msg = new Order("me", "Akka in Action", 10)
+      val msg = Order("me", "Akka in Action", 10)
       val xml = <order>
         <customerId>
           {msg.customerId}
