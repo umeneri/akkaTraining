@@ -26,10 +26,10 @@ class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
   val dir = new File("messages")
   val msgFile = new File(dir, "msg1.xml")
 
-  lazy val rabbitMq = {
+  val rabbitMq: EmbeddedRabbitMq = {
     val config = new EmbeddedRabbitMqConfig.Builder()
       .downloadFolder(new File("./rabbitmq/downloads"))
-      .extractionFolder(new File("/Users/koishi/.ghq/github.com.sub/umeneri/akkaTraining/chapter-stream-integration/rabbitmq/servers"))
+      .extractionFolder(new File(s"${System.getProperty("user.dir")}/rabbitmq/servers"))
       .version(PredefinedVersion.V3_6_9)
       .useCachedDownload(true)
       .deleteDownloadedFileOnErrors(false)
