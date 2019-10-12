@@ -1,11 +1,13 @@
 package aia.stream.integration
 
-import akka.actor.Props
+import akka.actor.{ ActorRef, Props }
 import akka.http.scaladsl.marshallers.xml.ScalaXmlSupport._
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import akka.util.Timeout
 import org.scalatest.{ Matchers, WordSpec }
 
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.xml.NodeSeq
 
@@ -14,11 +16,10 @@ class OrderServiceTest extends WordSpec
   with OrderService
   with ScalatestRouteTest {
 
-  val processOrders =
-    system.actorOf(Props(new ProcessOrders), "orders")
+  val processOrders: ActorRef = system.actorOf(Props(new ProcessOrders), "orders")
 
-  implicit val executionContext = system.dispatcher
-  implicit val requestTimeout = akka.util.Timeout(1 second)
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+  implicit val requestTimeout: Timeout = akka.util.Timeout(1 second)
 
   "The order service" should {
 

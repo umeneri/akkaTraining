@@ -20,10 +20,10 @@ class ProcessOrders extends Actor {
   val orderList = new mutable.HashMap[Long, TrackingOrder]()
   var lastOrderId = 0L
 
-  def receive = {
+  def receive: PartialFunction[Any, Unit] = {
     case order: Order => {
       lastOrderId += 1
-      val newOrder = new TrackingOrder(lastOrderId, "received", order)
+      val newOrder = TrackingOrder(lastOrderId, "received", order)
       orderList += lastOrderId -> newOrder
       sender() ! newOrder
     }
