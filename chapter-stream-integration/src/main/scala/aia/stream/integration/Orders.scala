@@ -3,11 +3,11 @@ package aia.stream.integration
 import java.nio.file.Path
 
 import akka.NotUsed
-import akka.stream.alpakka.amqp.{AmqpSinkSettings, AmqpSourceSettings}
-import akka.stream.alpakka.amqp.scaladsl.{AmqpSink, AmqpSource}
+import akka.stream.alpakka.amqp.{ AmqpSinkSettings, AmqpSourceSettings }
+import akka.stream.alpakka.amqp.scaladsl.{ AmqpSink, AmqpSource }
 import akka.stream.alpakka.file.DirectoryChange
 import akka.stream.alpakka.file.scaladsl.DirectoryChangesSource
-import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.scaladsl.{ Flow, Sink, Source }
 import akka.util.ByteString
 
 import scala.xml.XML
@@ -17,14 +17,14 @@ object Orders {
 
   case class Order(customerId: String, productId: String, number: Int)
 
-  val parseOrderXmlFlow = Flow[String].map { xmlString =>
+  val parseOrderXmlFlow: Flow[String, Order, NotUsed] = Flow[String].map { xmlString =>
     val xml = XML.loadString(xmlString)
     val order = xml \\ "order"
     val customer = (order \\ "customerId").text.trim
     val productId = (order \\ "productId").text.trim
     val number = (order \\ "number").text.trim.toInt
     Order(customer, productId, number)
-
+  }
 
   object FileXmlOrderSource {
     def watch(dirPath: Path): Source[Order, NotUsed] =
@@ -50,9 +50,15 @@ object Orders {
       Flow[Order]
         .map { order =>
           <order>
-            <customerId>{ order.customerId }</customerId>
-            <productId>{ order.productId }</productId>
-            <number>{ order.number }</number>
+            <customerId>
+              {order.customerId}
+            </customerId>
+            <productId>
+              {order.productId}
+            </productId>
+            <number>
+              {order.number}
+            </number>
           </order>
         }
         .map(xml => ByteString(xml.toString))
