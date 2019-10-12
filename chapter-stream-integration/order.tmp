@@ -1,0 +1,7 @@
+        <order>
+          <customerId>customer1</customerId>
+          <productId>Akka in action</productId>
+           
+          <number>10</number>
+        </order>
+

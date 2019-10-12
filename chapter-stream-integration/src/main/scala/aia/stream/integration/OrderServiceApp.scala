@@ -1,12 +1,14 @@
 package aia.stream.integration
 
-import akka.actor.ActorSystem
+import akka.actor.{ ActorSystem, Props }
 import akka.event.Logging
+import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.{ Config, ConfigFactory }
 
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.{ ExecutionContextExecutor, Future }
+import scala.util.{ Failure, Success }
 
 object OrderServiceApp extends App
     with RequestTimeout {
@@ -16,10 +18,22 @@ object OrderServiceApp extends App
 
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContextExecutor = system.dispatcher
- 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
+  val processOrders = system.actorOf(Props(new ProcessOrders), "process-orders")
+  val route = new OrderServiceApi(system, requestTimeout(config), processOrders).routes
+  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, host, port)
   val log =  Logging(system.eventStream, "order-service")
+
+  bindingFuture.map { serverBinding =>
+    log.info(s"Bound to ${serverBinding.localAddress}")
+  }.onComplete {
+    case Failure(exception) =>
+      log.error(exception, "Failed to bind to {}:{}", host, port)
+      system.terminate()
+    case Success(value) =>
+      log.info(s"success: $value")
+  }
 }
 
 
