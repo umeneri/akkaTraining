@@ -1,14 +1,12 @@
 package aia.stream.integration
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.event.Logging
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContextExecutor
 
 object OrderServiceApp extends App
     with RequestTimeout {
@@ -16,10 +14,10 @@ object OrderServiceApp extends App
   val host = config.getString("http.host")
   val port = config.getInt("http.port")
 
-  implicit val system = ActorSystem() 
-  implicit val ec = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem()
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
  
-  implicit val materializer = ActorMaterializer()
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val log =  Logging(system.eventStream, "order-service")
 }
