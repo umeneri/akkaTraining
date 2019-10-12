@@ -14,7 +14,7 @@ import org.apache.commons.io.FileUtils
 import org.scalatest.{ BeforeAndAfterAll, MustMatchers, WordSpecLike }
 
 import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
 
 class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
   with WordSpecLike with BeforeAndAfterAll with MustMatchers {
@@ -119,7 +119,7 @@ class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
 
   "The Producer" must {
     "send msg using AMQP" in {
-      implicit val executionContext = system.dispatcher
+      implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
       val queueName = "xmlTest"
 
@@ -129,7 +129,7 @@ class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
           routingKey = Some(queueName)
         )
 
-      val msg = new Order("me", "Akka in Action", 10)
+      val msg = Order("me", "Akka in Action", 10)
 
       val producer: RunnableGraph[NotUsed] =
         Source.single(msg)
