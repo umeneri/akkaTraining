@@ -1,0 +1,1 @@
+{"state":"ok","description":"5 tickets sold to RHCP.","host":"my-host-1","service":"web-app","time":"2015-08-12T12:12:00.127Z"}{"state":"ok","description":"3 tickets sold to RHCP.","host":"my-host-2","service":"web-app","time":"2015-08-12T12:12:01.127Z"}{"state":"ok","description":"1 tickets sold to RHCP.","host":"my-host-3","service":"web-app","time":"2015-08-12T12:12:02.127Z"}
