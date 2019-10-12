@@ -1,0 +1,6 @@
+my-host-1  | web-app | ok       | 2015-08-12T12:12:00.127Z | 5 tickets sold to RHCP.|
+my-host-2  | web-app | ok       | 2015-08-12T12:12:01.127Z | 3 tickets sold to RHCP.|
+my-host-3  | web-app | ok       | 2015-08-12T12:12:02.127Z | 1 tickets sold to RHCP.|
+my-host-3  | web-app | error    | 2015-08-12T12:12:03.127Z | exception occurred...|
+my-host-4  | web-app | error    | 2015-08-12T12:12:03.127Z | exception occurred...|
+
