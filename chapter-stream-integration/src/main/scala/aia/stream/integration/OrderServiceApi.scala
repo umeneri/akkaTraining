@@ -4,10 +4,11 @@ import akka.actor._
 import akka.http.scaladsl.marshallers.xml.ScalaXmlSupport._
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ ExecutionContext, ExecutionContextExecutor }
 import scala.xml.NodeSeq
 
 class OrderServiceApi(
@@ -15,8 +16,8 @@ class OrderServiceApi(
   timeout: Timeout, 
   val processOrders: ActorRef
 ) extends OrderService {
-  implicit val requestTimeout = timeout
-  implicit def executionContext = system.dispatcher
+  implicit val requestTimeout: Timeout = timeout
+  implicit def executionContext: ExecutionContextExecutor = system.dispatcher
 }
 
 trait OrderService {
@@ -29,9 +30,9 @@ trait OrderService {
 
   implicit def requestTimeout: Timeout
 
-  val routes = getOrder ~ postOrders
+  val routes: Route = getOrder ~ postOrders
 
-  def getOrder = get {
+  def getOrder: Route = get {
     pathPrefix("orders" / IntNumber) { id =>
       onSuccess(processOrders.ask(OrderId(id))) {
         case result: TrackingOrder =>
@@ -42,13 +43,13 @@ trait OrderService {
             </statusResponse>
           )
         
-        case result: NoSuchOrder => 
+        case _: NoSuchOrder =>
           complete(StatusCodes.NotFound)
       }
     }
   }
 
-  def postOrders = post {
+  def postOrders: Route = post {
     path("orders") {
       entity(as[NodeSeq]) { xml =>
         val order = toOrder(xml)
@@ -61,7 +62,7 @@ trait OrderService {
               </confirm>
             )
         
-          case result =>
+          case _ =>
             complete(StatusCodes.BadRequest)
         }
       }
@@ -73,6 +74,6 @@ trait OrderService {
     val customer = (order \\ "customerId").text
     val productId = (order \\ "productId").text
     val number = (order \\ "number").text.toInt
-    new Order(customer, productId, number)
+    Order(customer, productId, number)
   }
 }
