@@ -20,11 +20,11 @@ object Orders {
   val parseOrderXmlFlow = Flow[String].map { xmlString =>
     val xml = XML.loadString(xmlString)
     val order = xml \\ "order"
-    val customer = (order \\ "customerId").text
-    val productId = (order \\ "productId").text
-    val number = (order \\ "number").text.toInt
+    val customer = (order \\ "customerId").text.trim
+    val productId = (order \\ "productId").text.trim
+    val number = (order \\ "number").text.trim.toInt
     Order(customer, productId, number)
-  }
+
 
   object FileXmlOrderSource {
     def watch(dirPath: Path): Source[Order, NotUsed] =

@@ -27,6 +27,7 @@ class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
   import Orders._
 
   val dir = new File("messages")
+  val msgFile = new File(dir, "msg1.xml")
 
   lazy val rabbitMq = {
     //    val config = new EmbeddedRabbitMqConfig.Builder()
@@ -53,6 +54,10 @@ class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
     if (!dir.exists()) {
       dir.mkdir()
     }
+
+    if (msgFile.exists()) {
+      msgFile.delete()
+    }
   }
 
   override def afterAll(): Unit = {
@@ -70,7 +75,7 @@ class ConsumerTest extends TestKit(ActorSystem("ConsumerTest"))
 
       val consumedOrder: Future[Order] = consumer.run()
 
-      val msg = new Order("me", "Akka in Action", 10)
+      val msg = Order("me", "Akka in Action", 10)
       val xml = <order>
         <customerId>
           {msg.customerId}
