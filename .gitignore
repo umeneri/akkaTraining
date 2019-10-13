@@ -147,4 +147,7 @@ GTAGS
 tags
 
 *.iml
-.idea
+metrics/
+notifications/
+logs-out/
+.idea/
