@@ -42,7 +42,7 @@ class LogStreamProcessorSpec extends TestKit(ActorSystem("test-filter"))
       val eventsSource: Source[Event, Future[IOResult]] =
         errors(parseLogEvents(source))
 
-      val events: Future[Seq[Event]] =
+      val events =
         eventsSource.runWith(Sink.seq[Event])
 
       Await.result(events, 10 seconds) must be(
