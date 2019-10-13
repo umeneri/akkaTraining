@@ -36,4 +36,4 @@ scalacOptions ++= Seq(
   "-language:_"
 )
 
-mainClass in reStart := Some("aia.stream.BufferLogsApp")
+//mainClass in reStart := Some("aia.stream.BufferLogsApp")
