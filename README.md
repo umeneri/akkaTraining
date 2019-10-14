@@ -4,3 +4,6 @@
 [Crawling the Web with Akka Streams - Universal Language](https://tech.smartling.com/crawling-the-web-with-akka-streams-60ed8b3485e4)
 [Integration • Akka Documentation](https://doc.akka.io/docs/akka/current/stream/stream-integrations.html#integrating-with-actors)
 
+# akka http client
+[Query parameters for GET requests using Akka HTTP (formally known as Spray) - Stack Overflow](https://stackoverflow.com/questions/31929843/query-parameters-for-get-requests-using-akka-http-formally-known-as-spray)
+
