@@ -108,9 +108,9 @@ object GithubRequest {
     val path = "search/repositories"
     val queryString = "language:scala+stars:>=10+created:>2015-10-12"
     val token = sys.env.getOrElse("GITHUB_TOKEN", "")
+    val uri = Uri(s"https://$host/$path").withRawQueryString(s"q=$queryString")
 
-    HttpRequest(uri = Uri(s"https://$host/$path").withRawQueryString(s"q=$queryString"))
-      .withHeaders(Authorization(GenericHttpCredentials("token", token)))
+    HttpRequest(uri = uri).withHeaders(Authorization(GenericHttpCredentials("token", token)))
   }
 }
 
