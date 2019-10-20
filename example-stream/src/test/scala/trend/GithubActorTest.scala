@@ -77,7 +77,7 @@ class GithubActorTest extends TestKit(ActorSystem("testsystem"))
         Http().outgoingConnectionHttps(GithubRequest.host)
 
       val httpRequestFlow = Flow[Int].map(i => {
-        GithubRequest.search()
+        GithubRequest.getSearchRequest()
       })
 
       val bufferSize = 10
@@ -88,7 +88,6 @@ class GithubActorTest extends TestKit(ActorSystem("testsystem"))
         .toMat(Sink.foreach(httpResponse => {
           val eventualString = Unmarshal(httpResponse.entity).to[Json]
           eventualString.map { j =>
-            println("a")
             println(j)
           }
         }))(Keep.left)
@@ -104,7 +103,7 @@ class GithubActorTest extends TestKit(ActorSystem("testsystem"))
 object GithubRequest {
   val host = "api.github.com"
 
-  def search(): HttpRequest = {
+  def getSearchRequest(): HttpRequest = {
     val path = "search/repositories"
     val queryString = "language:scala+stars:>=10+created:>2015-10-12"
     val token = sys.env.getOrElse("GITHUB_TOKEN", "")
