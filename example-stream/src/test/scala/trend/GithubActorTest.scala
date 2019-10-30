@@ -1,17 +1,21 @@
 package trend
 
+import java.nio.file.{ Path, Paths }
+
 import aia.stream.StopSystemAfterAll
-import akka.NotUsed
+import akka.{ Done, NotUsed }
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.headers.{ Authorization, GenericHttpCredentials }
 import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, Uri }
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
-import akka.stream.{ ActorMaterializer, OverflowStrategy }
+import akka.stream.scaladsl.{ FileIO, Flow, Keep, Sink, Source }
+import akka.stream.{ ActorMaterializer, IOResult, OverflowStrategy }
 import akka.testkit.TestKit
+import akka.util.ByteString
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import io.circe.Json
+import io.circe.parser._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ MustMatchers, WordSpecLike }
 import trend.GithubActor.{ Message, Tick }
@@ -19,6 +23,7 @@ import trend.GithubActor.{ Message, Tick }
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContextExecutor, Future }
 import scala.sys.process._
+import scala.util.Success
 
 
 class GithubActorTest extends TestKit(ActorSystem("testsystem"))
@@ -71,13 +76,39 @@ class GithubActorTest extends TestKit(ActorSystem("testsystem"))
       ref ! akka.actor.Status.Success("done")
     }
 
+    "file source test" in {
+      implicit val materializer: ActorMaterializer = ActorMaterializer()
+      val inputFile: Path = Paths.get(s"example-stream/logs/github_scala_mini.json")
+      val fileSource = FileIO.fromPath(inputFile)
+      val repositoryFrame = Flow[ByteString].map { b =>
+        b.decodeString("UTF8")
+      }.map { jsonString =>
+        parse(jsonString) fold( { e =>
+          println(e)
+          Json.Null
+        }, { json =>
+          println(json)
+          json
+        })
+      }
+
+      val fileGraph = fileSource
+        .via(repositoryFrame)
+        .toMat(Sink.foreach(_ => {
+          // println(json)
+        }))(Keep.left)
+        .run
+
+      fileGraph.futureValue must be(IOResult(5828,Success(Done)))
+    }
+
     "srouce actor and http request test" in {
       implicit val materializer: ActorMaterializer = ActorMaterializer()
       val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
         Http().outgoingConnectionHttps(GithubRequest.host)
 
       val httpRequestFlow = Flow[Int].map(i => {
-        GithubRequest.getSearchRequest()
+        GithubRequest.getSearchRequest
       })
 
       val bufferSize = 10
@@ -103,7 +134,7 @@ class GithubActorTest extends TestKit(ActorSystem("testsystem"))
 object GithubRequest {
   val host = "api.github.com"
 
-  def getSearchRequest(): HttpRequest = {
+  def getSearchRequest: HttpRequest = {
     val path = "search/repositories"
     val queryString = "language:scala+stars:>=10+created:>2015-10-12"
     val token = sys.env.getOrElse("GITHUB_TOKEN", "")
